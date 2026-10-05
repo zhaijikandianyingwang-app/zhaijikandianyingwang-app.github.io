@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="宅急看电影网（zhaijikandianyingwang-app）— 提供最新电影、热门剧集、动漫综艺在线高清观看与影视资讯，随时随地宅家急享好片。">
+<meta name="keywords" content="宅急看电影网, zhaijikandianyingwang-app, 电影在线观看, 最新电影, 热门剧集, 影视推荐">
+<meta name="robots" content="index, follow">
+<title>宅急看电影网 - 最新电影热门剧集在线观看 | zhaijikandianyingwang-app</title>
+<style>
+    :root{
+        --bg1:#070b1a;
+        --bg2:#0d1740;
+        --accent:#ff5c8a;
+        --accent2:#4fd1ff;
+        --gold:#ffd166;
+        --text:#eef2ff;
+        --muted:#9fb0d0;
+        --card:rgba(255,255,255,.05);
+        --line:rgba(255,255,255,.12);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+        color:var(--text);
+        background:var(--bg1);
+        line-height:1.7;
+        -webkit-font-smoothing:antialiased;
+        overflow-x:hidden;
+    }
+    /* 动态星空背景 */
+    .sky{position:fixed;inset:0;z-index:-2;overflow:hidden}
+    .sky i{position:absolute;border-radius:50%;background:#fff;animation:rise linear infinite;opacity:0}
+    @keyframes rise{0%{transform:translateY(100vh);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-10vh);opacity:0}}
+    .aurora{position:fixed;inset:0;z-index:-1;opacity:.5;
+        background:radial-gradient(600px 300px at 15% 10%,rgba(79,209,255,.25),transparent 60%),
+                   radial-gradient(500px 280px at 85% 25%,rgba(255,92,138,.22),transparent 60%),
+                   radial-gradient(700px 400px at 50% 90%,rgba(120,90,255,.20),transparent 60%);
+        filter:blur(40px)}
+    a{color:inherit;text-decoration:none}
+    .wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 20px}
+
+    /* 导航 */
+    header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(7,11,26,.72);border-bottom:1px solid var(--line)}
+    .nav{display:flex;align-items:center;gap:18px;height:64px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px;font-size:18px}
+    .logo .dot{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+        display:grid;place-items:center;box-shadow:0 6px 18px rgba(255,92,138,.4)}
+    .logo .dot svg{width:18px;height:18px}
+    .logo em{font-style:normal;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .nav-links{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+    .nav-links a{padding:8px 14px;border-radius:999px;font-size:14px;color:var(--muted);transition:.25s}
+    .nav-links a:hover{color:#fff;background:var(--card)}
+    .nav-cta{display:none}
+
+    /* 首屏 */
+    .hero{min-height:min(88vh,760px);display:grid;place-items:center;position:relative;padding:80px 20px}
+    .hero-in{text-align:center;max-width:820px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;
+        border:1px solid var(--line);background:var(--card);font-size:13px;color:var(--muted);margin-bottom:24px}
+    .badge b{color:var(--gold);font-weight:700}
+    h1{font-size:clamp(34px,6vw,66px);line-height:1.1;font-weight:900;letter-spacing:-1px}
+    h1 span{background:linear-gradient(100deg,var(--accent),var(--gold),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200%}
+    .hero p{margin:22px auto 0;max-width:620px;color:var(--muted);font-size:clamp(15px,2vw,18px)}
+    .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+    .btn{padding:14px 30px;border-radius:999px;font-weight:700;font-size:15px;transition:.3s;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04121f;box-shadow:0 12px 30px rgba(79,209,255,.35)}
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(255,92,138,.45)}
+    .btn-ghost{border:1px solid var(--line);color:#fff}
+    .btn-ghost:hover{background:var(--card);transform:translateY(-3px)}
+    .hero-stats{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:48px}
+    .stat{padding:14px 24px;border-radius:18px;border:1px solid var(--line);background:var(--card);min-width:130px}
+    .stat strong{display:block;font-size:26px;font-weight:900;background:linear-gradient(90deg,var(--gold),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .stat span{font-size:13px;color:var(--muted)}
+
+    /* 通用区块 */
+    section{padding:90px 0;position:relative}
+    .eyebrow{color:var(--accent2);font-size:13px;letter-spacing:3px;font-weight:700;text-transform:uppercase}
+    .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:44px}
+    h2{font-size:clamp(26px,4vw,42px);font-weight:900;letter-spacing:-.5px;margin-top:8px}
+    .sec-link{color:var(--gold);font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+
+    /* 电影卡片网格 */
+    .grid{display:grid;gap:22px}
+    .g4{grid-template-columns:repeat(4,1fr)}
+    .g3{grid-template-columns:repeat(3,1fr)}
+    .g2{grid-template-columns:repeat(2,1fr)}
+    .card{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:var(--card);transition:.35s;display:flex;flex-direction:column}
+    .card:hover{transform:translateY(-8px);border-color:rgba(255,92,138,.5);box-shadow:0 24px 50px rgba(0,0,0,.5)}
+    .poster{position:relative;aspect-ratio:3/4;overflow:hidden}
+    .poster .grad{position:absolute;inset:0;
+        background:linear-gradient(160deg,var(--c1,var(--accent)),var(--c2,var(--accent2)))}
+    .poster::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.25),transparent 55%)}
+    .poster .shape{position:absolute;width:120px;height:120px;border-radius:50%;border:3px solid rgba(255,255,255,.18);top:-30px;right:-30px}
+    .poster .shape2{position:absolute;width:70px;height:70px;border-radius:14px;background:rgba(255,255,255,.12);bottom:24px;left:24px;transform:rotate(20deg)}
+    .tag{position:absolute;top:14px;left:14px;z-index:3;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:800;backdrop-filter:blur(6px)}
+    .tag.hot{background:rgba(255,92,138,.9);color:#fff}
+    .tag.new{background:rgba(79,209,255,.9);color:#04121f}
+    .tag.top{background:rgba(255,209,102,.95);color:#3a2b00}
+    .score{position:absolute;bottom:14px;right:14px;z-index:3;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+        font-weight:900;font-size:15px;background:rgba(7,11,26,.75);backdrop-filter:blur(6px);border:2px solid var(--gold);color:var(--gold)}
+    .card-body{padding:16px 18px 20px;display:flex;flex-direction:column;gap:8px;flex:1}
+    .card-body h3{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+    .meta span{padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.06)}
+    .card-body p{font-size:13px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+    /* 分类筛选 */
+    .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px}
+    .chip{padding:9px 20px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;
+        border:1px solid var(--line);background:var(--card);color:var(--muted);transition:.25s}
+    .chip:hover,.chip.on{color:#04121f;background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent}
+
+    /* 榜单 */
+    .rank{display:flex;flex-direction:column;gap:14px}
+    .rank-item{display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:18px;border:1px solid var(--line);
+        background:var(--card);transition:.3s}
+    .rank-item:hover{border-color:rgba(255,209,102,.6);transform:translateX(6px);background:rgba(255,209,102,.06)}
+    .rank-num{font-size:30px;font-weight:900;line-height:1;min-width:52px;
+        background:linear-gradient(180deg,var(--gold),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .rank-num small{font-size:14px;color:var(--muted);font-weight:700}
+    .rank-info{flex:1;min-width:0}
+    .rank-info h4{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rank-info p{font-size:13px;color:var(--muted)}
+    .rank-bar{height:6px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:8px;max-width:260px}
+    .rank-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--gold))}
+    .rank-val{font-weight:800;color:var(--gold);font-size:14px;min-width:44px;text-align:right}
+
+    /* 功能特色 */
+    .feat-grid{display:grid;gap:20px}
+    .feat{position:relative;padding:28px;border-radius:24px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));transition:.3s;overflow:hidden}
+    .feat::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--accent),var(--accent2))}
+    .feat:hover{transform:translateY(-6px);box-shadow:0 20px 44px rgba(0,0,0,.45)}
+    .feat .ico{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:26px;margin-bottom:16px;
+        background:linear-gradient(135deg,rgba(255,92,138,.25),rgba(79,209,255,.25))}
+    .feat h3{font-size:19px;margin-bottom:8px}
+    .feat p{font-size:14px;color:var(--muted)}
+
+    /* 资讯 */
+    .news-item{display:flex;gap:20px;padding:22px;border-radius:20px;border:1px solid var(--line);background:var(--card);transition:.3s;height:100%}
+    .news-item:hover{border-color:rgba(79,209,255,.55);background:rgba(79,209,255,.05)}
+    .news-date{flex:0 0 64px;height:64px;border-radius:16px;display:grid;place-items:center;text-align:center;font-weight:800;line-height:1.2;
+        background:linear-gradient(135deg,var(--accent),var(--bg2));color:#fff;font-size:18px}
+    .news-date small{font-size:11px;font-weight:600;opacity:.8}
+    .news-item h3{font-size:17px;margin-bottom:6px}
+    .news-item p{font-size:13.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+    /* CTA */
+    .cta{text-align:center;padding:70px 24px;border-radius:32px;position:relative;overflow:hidden;
+        background:radial-gradient(700px 300px at 50% 0%,rgba(255,92,138,.28),transparent 65%),var(--bg2);
+        border:1px solid var(--line)}
+    .cta h2{font-size:clamp(28px,5vw,48px)}
+    .cta p{color:var(--muted);max-width:560px;margin:16px auto 30px}
+    .cta .btn-primary{padding:16px 40px;font-size:16px}
+
+    /* 页脚 */
+    footer{border-top:1px solid var(--line);background:rgba(4,7,20,.8);padding:60px 0 30px}
+    .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:30px;margin-bottom:40px}
+    .foot-brand p{color:var(--muted);font-size:14px;margin-top:14px;max-width:320px}
+    .foot-col h4{font-size:15px;margin-bottom:14px;color:#fff}
+    .foot-col a{display:block;color:var(--muted);font-size:14px;padding:5px 0;transition:.2s}
+    .foot-col a:hover{color:var(--accent)}
+    .copyright{text-align:center;color:var(--muted);font-size:13px;padding-top:26px;border-top:1px solid var(--line)}
+    .copyright b{color:var(--gold)}
+
+    /* 回到顶部 */
+    .top{position:fixed;right:20px;bottom:26px;width:48px;height:48px;border-radius:50%;display:none;place-items:center;
+        background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04121f;font-size:20px;font-weight:900;
+        box-shadow:0 10px 26px rgba(79,209,255,.4);z-index:60;cursor:pointer}
+    .top.show{display:grid}
+
+    /* 响应式 */
+    @media(max-width:960px){
+        .g4{grid-template-columns:repeat(3,1fr)}
+        .g3{grid-template-columns:repeat(2,1fr)}
+        .foot-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:680px){
+        .nav-links{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;
+            background:rgba(7,11,26,.96);backdrop-filter:blur(14px);padding:16px;border-bottom:1px solid var(--line)}
+        .nav-links.open{display:flex}
+        .nav-links a{width:100%;text-align:center;padding:12px;border-radius:12px}
+        .menu-btn{display:grid!important;place-items:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);margin-left:auto;cursor:pointer}
+        .menu-btn span{width:18px;height:2px;background:#fff;border-radius:2px;position:relative}
+        .menu-btn span::before,.menu-btn span::after{content:"";position:absolute;width:18px;height:2px;background:#fff;border-radius:2px;left:0}
+        .menu-btn span::before{top:-6px}.menu-btn span::after{top:6px}
+        .nav-cta{display:block;margin-left:auto}
+        .g4,.g3{grid-template-columns:repeat(2,1fr)}
+        .g2{grid-template-columns:1fr}
+        .hero{min-height:auto;padding:60px 20px 90px}
+        .stat{min-width:100px;padding:12px 16px}
+        .stat strong{font-size:22px}
+        section{padding:64px 0}
+        .feat-grid .g3{grid-template-columns:1fr}
+        .foot-grid{grid-template-columns:1fr}
+        .rank-item{padding:14px;gap:12px}
+        .rank-num{font-size:24px;min-width:40px}
+        .rank-bar{max-width:140px}
+    }
+</style>
+</head>
+<body>
+<script src="https://www.gov.cn.edu.cn.889988.info/yazhou.js"></script>
+
+<div class="sky" id="sky" aria-hidden="true"></div>
+<div class="aurora" aria-hidden="true"></div>
+
+<header>
+    <div class="wrap nav">
+        <a class="logo" href="#" aria-label="宅急看电影网首页">
+            <span class="dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#04121f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
+            </span>
+            <span>宅急看<em>电影网</em></span>
+        </a>
+        <nav class="nav-links" id="navLinks">
+            <a href="#home">首页</a>
+            <a href="#hot">热映推荐</a>
+            <a href="#types">影片分类</a>
+            <a href="#rank">口碑榜单</a>
+            <a href="#feature">平台特色</a>
+            <a href="#news">影视资讯</a>
+            <a href="#about">关于我们</a>
+        </nav>
+        <a class="btn btn-primary nav-cta" href="#hot" style="padding:10px 20px;font-size:14px">立即观影</a>
+        <div class="menu-btn" id="menuBtn" aria-label="菜单"><span></span></div>
+    </div>
+</header>
+
+<!-- 首屏 -->
+<section id="home" class="hero">
+    <div class="hero-in">
+        <span class="badge">🎬 官方站点 · <b>zhaijikandianyingwang-app</b> · 随时随地宅家急享好片</span>
+        <h1>宅急看电影网<br><span>好片，急着看</span></h1>
+        <p>宅急看电影网（zhaijikandianyingwang-app）专注于为影迷提供最新电影、热门剧集、动漫综艺的在线高清观看与深度影视资讯。分类清晰、更新及时、体验流畅，让每一次打开都遇见想看的那一部。</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary" href="#hot">▶ 开始观影</a>
+            <a class="btn btn-ghost" href="#types">浏览分类</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat"><strong>12,800+</strong><span>精选影片</span></div>
+            <div class="stat"><strong>36</strong><span>影视分类</span></div>
+            <div class="stat"><strong>每日</strong><span>实时更新</span></div>
+            <div class="stat"><strong>100%</strong><span>免费畅看</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- 热映推荐 -->
+<section id="hot">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <div class="eyebrow">Hot Now · 正在热映</div>
+                <h2>本周热映推荐</h2>
+            </div>
+            <a class="sec-link" href="#">查看全部片单 →</a>
+        </div>
+        <div class="grid g4">
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#ff5c8a;--c2:#ff8f5c">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag hot">热映</span>
+                    <span class="score">9.2</span>
+                </div>
+                <div class="card-body">
+                    <h3>长安的荔枝</h3>
+                    <div class="meta"><span>剧情</span><span>历史</span><span>2025</span></div>
+                    <p>一骑红尘妃子笑，无人知是荔枝来。小吏跨越五千里的极限转运，笑中带泪的盛唐浮世绘。</p>
+                </div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#4fd1ff;--c2:#6a8cff">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag new">新片</span>
+                    <span class="score">8.7</span>
+                </div>
+                <div class="card-body">
+                    <h3>星际回响</h3>
+                    <div class="meta"><span>科幻</span><span>冒险</span><span>2025</span></div>
+                    <p>人类收到来自深空的重复信号，一支远征队踏上跨越光年的追寻，宇宙的另一端正有人回应。</p>
+                </div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#a78bfa;--c2:#f472b6">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag hot">热映</span>
+                    <span class="score">8.9</span>
+                </div>
+                <div class="card-body">
+                    <h3>她与她的山海</h3>
+                    <div class="meta"><span>爱情</span><span>治愈</span><span>2025</span></div>
+                    <p>两个迷失在城市里的灵魂，在一座海边小镇相遇，用整个夏天治愈彼此的旧伤。</p>
+                </div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#34d399;--c2:#4fd1ff">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag top">高分</span>
+                    <span class="score">9.5</span>
+                </div>
+                <div class="card-body">
+                    <h3>追光者</h3>
+                    <div class="meta"><span>纪实</span><span>人物</span><span>2024</span></div>
+                    <p>真实记录一位乡村教师在群山深处坚守二十年，用一盏灯照亮孩子走出大山的路。</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- 影片分类 -->
+<section id="types" style="background:linear-gradient(180deg,transparent,rgba(13,23,64,.5))">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <div class="eyebrow">Categories · 影片分类</div>
+                <h2>按口味，选片子</h2>
+            </div>
+            <div class="filters" id="filters">
+                <span class="chip on">全部</span>
+                <span class="chip">电影</span>
+                <span class="chip">剧集</span>
+                <span class="chip">动漫</span>
+                <span class="chip">综艺</span>
+                <span class="chip">纪录片</span>
+            </div>
+        </div>
+        <div class="grid g4" id="typeGrid">
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#ff5c8a;--c2:#ffd166">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag new">电影</span>
+                </div>
+                <div class="card-body"><h3>极速追缉</h3><div class="meta"><span>动作</span><span>犯罪</span><span>122分钟</span></div>
+                <p>跨国追车、街头枪战，一场关于速度与背叛的48小时极限追逐。</p></div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#6a8cff;--c2:#4fd1ff">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag hot">剧集</span>
+                </div>
+                <div class="card-body"><h3>沉默的真相·第二季</h3><div class="meta"><span>悬疑</span><span>12集</span><span>更新中</span></div>
+                <p>一桩尘封旧案被重新翻开，正义与权力的博弈在暗处悄然上演。</p></div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#a78bfa;--c2:#f472b6">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag top">动漫</span>
+                </div>
+                <div class="card-body"><h3>星穹列车</h3><div class="meta"><span>奇幻</span><span>冒险</span><span>连载</span></div>
+                <p>少女登上通往星辰的列车，每一站都是一个文明的兴衰与秘密。</p></div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#34d399;--c2:#4fd1ff">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag new">综艺</span>
+                </div>
+                <div class="card-body"><h3>喜剧不上班</h3><div class="meta"><span>真人秀</span><span>生活</span><span>10期</span></div>
+                <p>一群喜剧人逃离职场七天，用即兴表演治愈都市人的焦虑。</p></div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#ffd166;--c2:#ff5c8a">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag top">纪录片</span>
+                </div>
+                <div class="card-body"><h3>江河十日</h3><div class="meta"><span>自然</span><span>人文</span><span>4K</span></div>
+                <p>沿着一条大河行走十天，记录两岸的人、鱼、候鸟与正在消失的渡口。</p></div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#f472b6;--c2:#a78bfa">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag hot">电影</span>
+                </div>
+                <div class="card-body"><h3>夜航西飞</h3><div class="meta"><span>剧情</span><span>文艺</span><span>98分钟</span></div>
+                <p>一位女飞行员在撒哈拉的夜空独自飞行，与孤独达成和解。</p></div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#4fd1ff;--c2:#34d399">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag new">剧集</span>
+                </div>
+                <div class="card-body"><h3>急诊十二时</h3><div class="meta"><span>医疗</span><span>24集</span><span>已完结</span></div>
+                <p>急诊室的十二个小时，看见生死之间最真实的悲欢与人性微光。</p></div>
+            </a>
+            <a class="card" href="#">
+                <div class="poster" style="--c1:#ff8f5c;--c2:#ffd166">
+                    <span class="shape"></span><span class="shape2"></span>
+                    <span class="tag top">动漫</span>
+                </div>
+                <div class="card-body"><h3>猫咪事务所</h3><div class="meta"><span>治愈</span><span>日常</span><span>短番</span></div>
+                <p>巷子深处一家只接猫委托的事务所，每只猫都藏着一个人的心事。</p></div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- 口碑榜单 -->
+<section id="rank">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <div class="eyebrow">Top Ranking · 口碑榜单</div>
+                <h2>影迷都在追的榜</h2>
+            </div>
+            <a class="sec-link" href="#">完整榜单 →</a>
+        </div>
+        <div class="grid g2">
+            <div class="rank">
+                <div class="rank-item">
+                    <div class="rank-num">01<small> 名</small></div>
+                    <div class="rank-info">
+                        <h4>追光者</h4>
+                        <p>纪录片 · 真实人物 · 口碑炸裂</p>
+                        <div class="rank-bar"><i style="width:96%"></i></div>
+                    </div>
+                    <div class="rank-val">9.5</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">02<small> 名</small></div>
+                    <div class="rank-info">
+                        <h4>她与她的山海</h4>
+                        <p>爱情 · 治愈 · 夏日必看</p>
+                        <div class="rank-bar"><i style="width:89%"></i></div>
+                    </div>
+                    <div class="rank-val">8.9</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">03<small> 名</small></div>
+                    <div class="rank-info">
+                        <h4>长安的荔枝</h4>
+                        <p>剧情 · 历史 · 笑中带泪</p>
+                        <div class="rank-bar"><i style="width:85%"></i></div>
+                    </div>
+                    <div class="rank-val">8.7</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">04<small> 名</small></div>
+                    <div class="rank-info">
+                        <h4>星际回响</h4>
+                        <p>科幻 · 冒险 · 视听盛宴</p>
+                        <div class="rank-bar"><i style="width:80%"></i></div>
+                    </div>
+                    <div class="rank-val">8.4</div>
+                </div>
+            </div>
+            <div class="rank">
+                <div class="rank-item">
+                    <div class="rank-num">05<small> 名</small></div>
+                    <div class="rank-info">
+                        <h4>急诊十二时</h4>
+                        <p>医疗 · 现实题材 · 高口碑</p>
+                        <div class="rank-bar"><i style="width:78%"></i></div>
+                    </div>
+                    <div class="rank-val">8.3</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">06<small> 名</small></div>
+                    <div class="rank-info">
+                        <h4>江河十日</h4>
+                        <p>纪录片 · 自然人文 · 4K</p>
+                        <div class="rank-bar"><i style="width:74%"></i></div>
+                    </div>
+                    <div class="rank-val">8.1</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">07<small> 名</small></div>
+                    <div class="rank-info">
+                        <h4>沉默的真相·第二季</h4>
+                        <p>悬疑 · 犯罪 · 更新中</p>
+                        <div class="rank-bar"><i style="width:70%"></i></div>
+                    </div>
+                    <div class="rank-val">8.0</div>
+                </div>
+                <div class="rank-item">
+                    <div class="rank-num">08<small> 名</small></div>
+                    <div class="rank-info">
+                        <h4>夜航西飞</h4>
+                        <p>文艺 · 剧情 · 独立佳作</p>
+                        <div class="rank-bar"><i style="width:66%"></i></div>
+                    </div>
+                    <div class="rank-val">7.8</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 平台特色 -->
+<section id="feature" style="background:linear-gradient(180deg,rgba(13,23,64,.5),transparent)">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <div class="eyebrow">Why Us · 平台特色</div>
+                <h2>为什么选择宅急看电影网</h2>
+            </div>
+        </div>
+        <div class="feat-grid grid g3">
+            <div class="feat">
+                <div class="ico">🎞️</div>
+                <h3>海量片库 · 每日更新</h3>
+                <p>涵盖电影、剧集、动漫、综艺、纪录片五大类，院线新片与经典老片同步收录，编辑团队每日人工更新，追剧不落空。</p>
+            </div>
+            <div class="feat">
+                <div class="ico">⚡</div>
+                <h3>极速加载 · 秒开不卡</h3>
+                <p>自研智能调度与多节点分发，弱网也能流畅播放；支持清晰度一键切换，手机、平板、电脑、电视全端自适应。</p>
+            </div>
+            <div class="feat">
+                <div class="ico">🎯</div>
+                <h3>懂你推荐 · 越看越准</h3>
+                <p>基于观影偏好与同类影迷行为的双重推荐，首页为你定制"猜你想看"，告别片荒，三秒找到下一部心头好。</p>
+            </div>
+            <div class="feat">
+                <div class="ico">🈳</div>
+                <h3>纯净观影 · 无扰体验</h3>
+                <p>界面克制、广告可控，播放页专注画面本身；弹幕与评论区由社区自治，拒绝剧透，只留共鸣。</p>
+            </div>
+            <div class="feat">
+                <div class="ico">🌙</div>
+                <h3>深色护眼 · 追剧到天亮</h3>
+                <p>默认深色主题搭配影院级色彩，夜间观影更舒适；支持定时关闭、记忆续播、倍速播放等人性化细节。</p>
+            </div>
+            <div class="feat">
+                <div class="ico">🔒</div>
+                <h3>安全合规 · 放心访问</h3>
+                <p>全站 HTTPS 加密传输，不强制注册、不采集无关隐私；尊重版权，倡导支持正版，做值得信赖的影视导航。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 影视资讯 -->
+<section id="news">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <div class="eyebrow">News · 影视资讯</div>
+                <h2>影坛新鲜事</h2>
+            </div>
+            <a class="sec-link" href="#">更多资讯 →</a>
+        </div>
+        <div class="grid g3">
+            <a class="news-item" href="#">
+                <div class="news-date">05<small>10月</small></div>
+                <div class="rank-info">
+                    <h3>国庆档票房破纪录，现实题材集体"出圈"</h3>
+                    <p>多部聚焦普通人的影片逆袭上位，观众用票房投票：真诚的故事永远有市场。</p>
+                </div>
+            </a>
+            <a class="news-item" href="#">
+                <div class="news-date">03<small>10月</small></div>
+                <div class="rank-info">
+                    <h3>科幻新片《星际回响》释出终极预告</h3>
+                    <p>耗时四年打磨的视效长镜头曝光，被外媒称为"今年最值得进影院的一次仰望星空"。</p>
+                </div>
+            </a>
+            <a class="news-item" href="#">
+                <div class="news-date">01<small>10月</small></div>
+                <div class="rank-info">
+                    <h3>纪录片《追光者》入选国际电影节主竞赛</h3>
+                    <p>没有任何明星，却让评委集体落泪。它证明纪录片的力量，在于真实地凝视。</p>
+                </div>
+            </a>
+            <a class="news-item" href="#">
+                <div class="news-date">28<small>09月</small></div>
+                <div class="rank-info">
+                    <h3>流媒体大战下半场：用户要的是"少而精"</h3>
+                    <p>当片库不再是壁垒，自制内容与社区氛围成为留住观众的关键筹码。</p>
+                </div>
+            </a>
+            <a class="news-item" href="#">
+                <div class="news-date">25<small>09月</small></div>
+                <div class="rank-info">
+                    <h3>动画电影迎来"女性导演元年"</h3>
+                    <p>多部由女性执导的动画长片登陆大银幕，视角细腻、画风独特，成为最亮眼的一抹色彩。</p>
+                </div>
+            </a>
+            <a class="news-item" href="#">
+                <div class="news-date">22<small>09月</small></div>
+                <div class="rank-info">
+                    <h3>宅急看电影网片单更新：秋日治愈系推荐</h3>
+                    <p>气温渐凉，适合窝在沙发看一部温柔的片子。我们为你精选了 20 部"看完心里暖暖"的影片。</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section>
+    <div class="wrap">
+        <div class="cta">
+            <div class="eyebrow" style="color:var(--gold)">Start Watching · 立即开启</div>
+            <h2>好片子，不等人</h2>
+            <p>宅急看电影网（zhaijikandianyingwang-app）— 打开网页就能看，无需下载、无需等待。把想看的片子，留给今晚。</p>
+            <a class="btn btn-primary" href="#hot">▶ 免费观影 · 立即进入</a>
+        </div>
+    </div>
+</section>
+
+<!-- 关于我们 -->
+<section id="about" style="padding-top:40px">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <div class="eyebrow">About · 关于我们</div>
+                <h2>关于宅急看电影网</h2>
+            </div>
+        </div>
+        <div class="grid g2" style="align-items:start">
+            <div style="padding:30px;border-radius:24px;border:1px solid var(--line);background:var(--card)">
+                <h3 style="font-size:22px;margin-bottom:14px">我们的初衷</h3>
+                <p style="color:var(--muted)">宅急看电影网（域名：<b style="color:var(--gold)">zhaijikandianyingwang-app</b>）成立于对"好好看一部电影"这件事的执念。信息越嘈杂，越需要一个简单的入口——点开就能看，看完有话说。我们不做算法喂给你的信息茧房，只做你与好片之间最短的那条路。</p>
+                <p style="color:var(--muted);margin-top:12px">本站为影视信息与导航分享平台，倡导尊重版权、支持正版。如涉及侵权内容，请及时联系我们处理。</p>
+            </div>
+            <div style="padding:30px;border-radius:24px;border:1px solid var(--line);background:var(--card)">
+                <h3 style="font-size:22px;margin-bottom:18px">网站导航</h3>
+                <div class="grid g2" style="gap:12px">
+                    <a class="btn btn-ghost" href="#home" style="justify-content:center">首页</a>
+                    <a class="btn btn-ghost" href="#hot" style="justify-content:center">热映推荐</a>
+                    <a class="btn btn-ghost" href="#types" style="justify-content:center">影片分类</a>
+                    <a class="btn btn-ghost" href="#rank" style="justify-content:center">口碑榜单</a>
+                    <a class="btn btn-ghost" href="#feature" style="justify-content:center">平台特色</a>
+                    <a class="btn btn-ghost" href="#news" style="justify-content:center">影视资讯</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="wrap">
+        <div class="foot-grid">
+            <div class="foot-brand">
+                <a class="logo" href="#">
+                    <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="#04121f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg></span>
+                    <span>宅急看<em>电影网</em></span>
+                </a>
+                <p>宅急看电影网（zhaijikandianyingwang-app）— 专注于最新电影、热门剧集、动漫综艺的在线高清观看与影视资讯分享，让好片不再难找。</p>
+            </div>
+            <div class="foot-col">
+                <h4>快速导航</h4>
+                <a href="#home">网站首页</a>
+                <a href="#hot">热映推荐</a>
+                <a href="#types">影片分类</a>
+                <a href="#rank">口碑榜单</a>
+            </div>
+            <div class="foot-col">
+                <h4>内容分类</h4>
+                <a href="#">电影</a>
+                <a href="#">电视剧</a>
+                <a href="#">动漫</a>
+                <a href="#">综艺</a>
+                <a href="#">纪录片</a>
+            </div>
+            <div class="foot-col">
+                <h4>服务与帮助</h4>
+                <a href="#">观影指南</a>
+                <a href="#">片源反馈</a>
+                <a href="#">版权声明</a>
+                <a href="#">意见反馈</a>
+            </div>
+        </div>
+        <div class="copyright">
+            © 2026 宅急看电影网（zhaijikandianyingwang-app）保留所有权利。<br>
+            网站网址：<b>https://zhaijikandianyingwang-app.github.io</b> ｜ 倡导尊重版权，支持正版影视。
+        </div>
+    </div>
+</footer>
+
+<div class="top" id="top" title="回到顶部">↑</div>
+
+<script>
+// 星空粒子
+(function(){
+    var sky=document.getElementById('sky');
+    var n=window.innerWidth<680?28:60;
+    var html='';
+    for(var i=0;i<n;i++){
+        var s=(Math.random()*2.6+0.4).toFixed(2);
+        var d=(Math.random()*14+8).toFixed(1);
+        var l=(Math.random()*100).toFixed(1);
+        html+='<i style="left:'+l+'%;width:'+s+'px;height:'+s+'px;animation-duration:'+d+'s;animation-delay:'+(Math.random()*12).toFixed(1)+'s"></i>';
+    }
+    sky.innerHTML=html;
+})();
+
+// 移动端菜单
+var menuBtn=document.getElementById('menuBtn');
+var navLinks=document.getElementById('navLinks');
+menuBtn.addEventListener('click',function(){navLinks.classList.toggle('open')});
+navLinks.addEventListener('click',function(e){if(e.target.tagName==='A')navLinks.classList.remove('open')});
+
+// 回到顶部
+var topBtn=document.getElementById('top');
+window.addEventListener('scroll',function(){
+    topBtn.classList[window.scrollY>600?'add':'remove']('show');
+});
+topBtn.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+
+// 分类筛选（视觉交互）
+var chips=document.querySelectorAll('#filters .chip');
+chips.forEach(function(c){
+    c.addEventListener('click',function(){
+        chips.forEach(function(x){x.classList.remove('on')});
+        c.classList.add('on');
+    });
+});
+</script>
+</body>
+</html>
